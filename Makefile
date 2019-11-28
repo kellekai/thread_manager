@@ -1,4 +1,4 @@
-main: FTthreadManager.o
+main: FTthreadManager.o main.cpp
 	g++ main.cpp FTthreadManager.o -o main -lpthread -g
 
 FTthreadManager.o: FTthreadManager.cxx FTthreadManager.h

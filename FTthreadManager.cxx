@@ -43,9 +43,7 @@ void FTthreadManager::start_scheduler()
         for( auto & task : m_task_queue_running ) {
             if( task.active ) {
                 if( task.future.wait_for(std::chrono::seconds(0)) == std::future_status::ready ) {
-                    m_mutex.lock();
                     task.active = false;
-                    m_mutex.unlock();
                 }
             }
         }
@@ -55,12 +53,12 @@ void FTthreadManager::start_scheduler()
                         return !task.active;
                     });
             if( it != m_task_queue_running.end() ) { 
-                m_mutex.lock();
                 it->active = true;
                 it->promise = std::promise<bool>();
                 it->future = it->promise.get_future();
                 std::thread th( &FTthreadManager::task_wrapper, this, m_task_queue_pending.front(), std::ref(it->promise) );
                 th.detach();
+                m_mutex.lock();
                 m_task_queue_pending.pop();
                 m_mutex.unlock();
             }

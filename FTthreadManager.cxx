@@ -6,19 +6,21 @@ FTthreadManager::FTthreadManager() :
     m_max_running(5),
     m_online(true) 
 {
-    init_runner_queue();
-    m_scheduler_thread = std::thread(&FTthreadManager::start_scheduler, this);
 }
 
 FTthreadManager::FTthreadManager( int max_running ) : 
     m_max_running(max_running),
     m_online(true)
 {
+}
+
+void FTthreadManager::init()
+{
     init_runner_queue();
     m_scheduler_thread = std::thread(&FTthreadManager::start_scheduler, this);
 }
 
-FTthreadManager::~FTthreadManager()
+void FTthreadManager::fini()
 {
     m_online = false;
     m_scheduler_thread.join();
@@ -28,13 +30,9 @@ void FTthreadManager::init_runner_queue()
 {
     m_task_queue_running.resize( m_max_running );
     for( auto & task : m_task_queue_running ) {
-        if( task.active ) {
-            if( task.future.wait_for(std::chrono::seconds(0)) == std::future_status::ready ) {
-                task.active = false;
-                task.promise = std::promise<bool>();
-                task.future = task.promise.get_future();
-            }
-        }
+        task.active = false;
+        task.promise = std::promise<bool>();
+        task.future = task.promise.get_future();
     }
 }
 void FTthreadManager::start_scheduler() 

@@ -16,7 +16,8 @@ class FTthreadManager
 
         FTthreadManager();
         FTthreadManager( int max );
-        ~FTthreadManager();
+        void init();
+        void fini();
         template<class F, class... Args>
         void submit(F&& func, Args&&... args);
         void synchronize();
